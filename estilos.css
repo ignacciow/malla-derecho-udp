@@ -1,0 +1,51 @@
+/* style.css */
+/* Colores Miffy Rosa */
+:root {
+  --miffy-pink: #FFC0CB;
+  --miffy-white: #FFFFFF;
+  --miffy-gray: #DDD;
+}
+body {
+  background-color: var(--miffy-white);
+  color: #333;
+  font-family: 'Arial', sans-serif;
+  text-align: center;
+  padding: 1em;
+}
+h1 {
+  color: #E75480;
+}
+#malla-container {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  max-width: 1000px;
+  margin: auto;
+}
+.course {
+  background-color: var(--miffy-pink);
+  border: 2px solid var(--miffy-gray);
+  border-radius: 12px;
+  padding: 10px;
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.2s;
+}
+.course:hover {
+  transform: scale(1.05);
+}
+.course.locked {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.course.approved {
+  background-color: #FF99AA;
+  text-decoration: line-through;
+}
+.course .name {
+  font-weight: bold;
+}
+.course .code {
+  font-size: 0.8em;
+  color: #555;
+}
