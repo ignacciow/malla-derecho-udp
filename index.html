@@ -1,15 +1,160 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Malla Derecho UDP 2023</title>
-  <link rel="stylesheet" href="style.css">
+  <style>
+    /* ====== ESTILOS ====== */
+    :root {
+      --miffy-pink: #FFC0CB;
+      --miffy-white: #FFFFFF;
+      --miffy-gray: #DDD;
+    }
+    body {
+      margin: 0;
+      padding: 1em;
+      background: var(--miffy-white);
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+    h1 {
+      color: #E75480;
+      margin-bottom: .5em;
+    }
+    #malla-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 10px;
+      max-width: 1000px;
+      margin: auto;
+    }
+    .course {
+      background: var(--miffy-pink);
+      border: 2px solid var(--miffy-gray);
+      border-radius: 12px;
+      padding: .5em;
+      cursor: pointer;
+      transition: transform .15s;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100px;
+    }
+    .course:hover { transform: scale(1.05); }
+    .course.locked {
+      opacity: .4;
+      cursor: not-allowed;
+    }
+    .course.approved {
+      background: #FF99AA;
+      text-decoration: line-through;
+    }
+    .course .name {
+      font-size: .9em;
+      font-weight: bold;
+      margin-bottom: .3em;
+    }
+    .course .code { font-size: .75em; color: #555; }
+    .course .credits { font-size: .75em; margin-top: .3em; color: #222; }
+  </style>
 </head>
 <body>
+
   <h1>Malla Derecho UDP 2023</h1>
   <div id="malla-container"></div>
-  <script src="script.js"></script>
+
+  <script>
+    // ====== DATOS ======
+    const courses = [
+      { code:'DER06111',name:'Fundamentos histórico-sociales',prereqs:[],credits:5 },
+      { code:'DER06112',name:'Instituciones Políticas y DD.HH.',prereqs:[],credits:5 },
+      { code:'DER06113',name:'Taller de razonamiento jurídico',prereqs:[],credits:5 },
+      { code:'DER06114',name:'Taller de investigación y escritura legal',prereqs:[],credits:5 },
+      { code:'DER06115',name:'Comunicación oral',prereqs:[],credits:3 },
+
+      { code:'DER06121',name:'Persona y acto jurídico',prereqs:['DER06111'],credits:5 },
+      { code:'DER06122',name:'Derecho Constitucional Orgánico',prereqs:['DER06112'],credits:5 },
+      { code:'DER06123',name:'Introducción al Derecho I',prereqs:['DER06113'],credits:5 },
+      { code:'DER06124',name:'Bases Generales del Derecho Procesal',prereqs:['DER06113'],credits:5 },
+
+      { code:'DER06211',name:'Derechos Reales y Derecho Inmobiliario',prereqs:['DER06121'],credits:5 },
+      { code:'DER06212',name:'Derechos Fundamentales',prereqs:['DER06122'],credits:7 },
+      { code:'DER06213',name:'Introducción al Derecho II',prereqs:['DER06123'],credits:5 },
+      { code:'DER06214',name:'Economía y Derecho (FI)',prereqs:['DER06114'],credits:5 },
+
+      { code:'DER06221',name:'Derecho de las Obligaciones',prereqs:['DER06211'],credits:5 },
+      { code:'DER06222',name:'Derecho Penal Parte General I',prereqs:['DER06123'],credits:5 },
+      { code:'DER06223',name:'Taller Destrezas Litigación Oral',prereqs:['DER06115','DER06124','DER06211','DER06212','DER06213'],credits:5 },
+      { code:'DER06224',name:'Derecho Regulatorio',prereqs:['DER06214'],credits:5 },
+
+      { code:'DER06311',name:'Derecho de Daños',prereqs:['DER06221'],credits:5 },
+      { code:'DER06312',name:'Derecho Internacional Público',prereqs:['DER06212'],credits:5 },
+      { code:'DER06313',name:'Derecho Penal Parte General II',prereqs:['DER06213','DER06222'],credits:5 },
+      { code:'DER06314',name:'Procedimientos Judiciales',prereqs:['DER06223'],credits:5 },
+      { code:'DER06315',name:'Derecho Comercial',prereqs:['DER06224'],credits:5 },
+
+      { code:'DER06321',name:'Contratos',prereqs:['DER06114','DER06311'],credits:7 },
+      { code:'DER06322',name:'Derecho Administrativo',prereqs:['DER06223','DER06224'],credits:5 },
+      { code:'DER06323',name:'Derecho Penal Parte Especial',prereqs:['DER06313'],credits:5 },
+      { code:'DER06324',name:'Derecho Societario',prereqs:['DER06315'],credits:5 },
+
+      { code:'DER06411',name:'Derecho de Familia y Sucesorio',prereqs:['DER06321'],credits:5 },
+      { code:'DER06412',name:'Derecho y Medio Ambiente (FI)',prereqs:['DER06322'],credits:5 },
+      { code:'DER06413',name:'Proceso Penal',prereqs:['DER06323'],credits:5 },
+      { code:'DER06414',name:'Taller de Negociación Colaborativa',prereqs:['DER06314'],credits:5 },
+      { code:'DER06415',name:'Derecho Tributario',prereqs:['DER06224'],credits:5 },
+      { code:'DER06416',name:'Derecho del Trabajo',prereqs:['DER06214','DER06223'],credits:5 },
+
+      { code:'DER06C_F1',name:'Clínicas Jurídicas I / Pasantía',prereqs:['DER06411','DER06412','DER06413','DER06414','DER06324'],credits:12 },
+      { code:'DER06OPT1',name:'Optativo I',prereqs:['DER06321','DER06322','DER06323','DER06324'],credits:5 },
+      { code:'DER06OPT2',name:'Optativo II',prereqs:['DER06321','DER06322','DER06323','DER06324'],credits:5 },
+      { code:'DER06OPT3',name:'Optativo III',prereqs:['DER06321','DER06322','DER06323','DER06324'],credits:5 },
+
+      { code:'DER06C_F2',name:'Clínicas Jurídicas II / Pasantía',prereqs:['DER06411','DER06412','DER06413','DER06414','DER06324'],credits:12 },
+      { code:'DER06511',name:'Filosofía del Derecho',prereqs:['DER06213'],credits:5 },
+      { code:'DER06OPT4',name:'Optativo IV',prereqs:['DER06321','DER06322','DER06323','DER06324'],credits:5 },
+      { code:'DER06512',name:'Seminario Avanzado Escritura Jurídica',prereqs:['DER06C_F1'],credits:10 },
+
+      { code:'DER06521',name:'Integración y Actividad de Licenciatura',prereqs:['DER06415','DER06416','DER06C_F2','DER06511','DER06512'],credits:18 },
+      { code:'DER06522',name:'Ética y Responsabilidad Profesional',prereqs:['DER06C_F2'],credits:3 },
+      { code:'DER06523',name:'Taller de Inserción y Emprendimiento',prereqs:['DER06C_F2'],credits:3 },
+      { code:'DER06OPT5',name:'Optativo V',prereqs:['DER06321','DER06322','DER06323','DER06324'],credits:5 }
+    ];
+
+    // estado de aprobados
+    const approved = new Set();
+
+    function isUnlocked(c) {
+      return c.prereqs.every(pr => approved.has(pr));
+    }
+
+    // render
+    const container = document.getElementById('malla-container');
+    function render() {
+      container.innerHTML = '';
+      courses.forEach(c => {
+        const d = document.createElement('div');
+        d.className = 'course';
+        if (approved.has(c.code)) d.classList.add('approved');
+        else if (!isUnlocked(c)) d.classList.add('locked');
+        d.innerHTML = `
+          <div class="name">${c.name}</div>
+          <div class="code">${c.code}</div>
+          <div class="credits">${c.credits} créditos</div>
+        `;
+        d.onclick = () => {
+          if (isUnlocked(c)) {
+            approved.has(c.code) ? approved.delete(c.code) : approved.add(c.code);
+            render();
+          }
+        };
+        container.appendChild(d);
+      });
+    }
+
+    render();
+  </script>
+
 </body>
 </html>
